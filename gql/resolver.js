@@ -1,4 +1,6 @@
-const resolver = {
+const userController = require("../controllers/user");
+
+const resolvers = {
   Query: {
     // User
     getUser: () => {
@@ -6,6 +8,12 @@ const resolver = {
       return null;
     },
   },
+
+  Mutation: {
+    // User
+    register: (_, { input }) => userController.register(input),
+    login: (_, { input }) => userController.login(input),
+  },
 };
 
-module.exports = resolver;
+module.exports = resolvers;
