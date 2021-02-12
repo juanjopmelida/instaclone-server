@@ -55,7 +55,40 @@ async function login(input) {
   };
 }
 
+async function getUser(id, username) {
+  let user = null;
+  if (id) user = await User.findById(id);
+  if (username) user = await User.findOne({ username });
+  if (!user) throw new Error("El usuario no existe");
+
+  return user;
+}
+
+async function updateAvatar(file, ctx) {
+  const { id } = ctx.user;
+  const { createReadStream, mimetype } = await file;
+  const extension = mimetype.split("/")[1];
+  const imageName = `avatar/${id}.${extension}`;
+  const fileData = createReadStream();
+
+  try {
+    const result = await awsUploadImage(fileData, imageName);
+    await User.findByIdAndUpdate(id, { avatar: result });
+    return {
+      status: true,
+      urlAvatar: result,
+    };
+  } catch (error) {
+    return {
+      status: false,
+      urlAvatar: null,
+    };
+  }
+}
+
 module.exports = {
   register,
   login,
+  getUser,
+  updateAvatar,
 };
